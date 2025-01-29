@@ -1,0 +1,33 @@
+
+∇ cycleDay ← getSchoolCycleDay inputDate;allDates;dates;allSchoolDays;count;nonSchoolStrings;nonSchoolDates;startDate;endDate;currentDate;schoolDays;dows
+  ⎕IO←0
+  ⍝ Define non-school date strings
+  nonSchoolStrings ← '2024-09-30' '2024-10-11' '2024-10-14' '2024-10-25' '2024-11-11' '2024-12-05' '2025-01-02' '2025-01-31' '2025-02-17' '2025-03-10' '2025-03-11' '2025-03-12' '2025-03-13' '2025-03-14' '2025-04-03' '2025-04-18' '2025-04-21' '2025-04-30' '2025-05-19' '2025-06-26' '2025-06-27' '2024-12-23' '2024-12-24' '2024-12-25' '2024-12-26' '2024-12-27' '2024-12-30' '2024-12-31' '2025-01-01'
+
+  ⍝ Convert to Dyalog date numbers (format 1)
+  nonSchoolDates ← 1 ⎕DT {⍎¨'-'(≠⊆⊢)⍵}¨nonSchoolStrings
+
+  ⍝ School year boundaries
+  startDate ← 1 ⎕DT ⊂2024 9 5   ⍝ 2024-09-05
+  endDate ← 1 ⎕DT ⊂2025 6 30    ⍝ 2025-06-30
+
+  ⍝ Validate input date
+  :If (inputDate < startDate) ∨ inputDate > endDate
+      ⎕SIGNAL 11  ⍝ Domain error
+  :EndIf
+
+  ⍝ Find nearest prior school day using array operations
+  currentDate ← inputDate
+  allDates ← ⌽startDate + ⍳1 + inputDate - startDate  ⍝ Reverse dates from input to start
+  schoolDays ← (~allDates∊nonSchoolDates) ∧ (5≥1+7|1-⍨allDates)
+  currentDate ← allDates⊃⍨⊃⍸schoolDays  ⍝ First valid school day
+
+  ⍝ Count school days from startDate to currentDate
+  dates←startDate+⍳currentDate-startDate
+  allSchoolDays ← ~dates∊nonSchoolDates
+  allSchoolDays ∧← (5≥1+7|1-⍨dates)
+  count ← +/allSchoolDays
+
+  ⍝ Calculate cycle day (0-indexed)
+  cycleDay ← 8|count
+∇
